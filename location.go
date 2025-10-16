@@ -1,8 +1,8 @@
 package vnlocation
 
 import (
+	_ "embed"
 	"encoding/json"
-	"os"
 )
 
 type Province struct {
@@ -26,31 +26,29 @@ type ProvinceWard struct {
 	Wards []Ward
 }
 
-var provinces []Province
+//go:embed data/vn-provinces.json
+var vnProvincesData []byte
 
-// var wards []Ward
-var provinceWards []ProvinceWard
+//go:embed data/vn-tree.json
+var vnTreeData []byte
+
+var (
+	provinces     []Province
+	provinceWards []ProvinceWard
+)
 
 func loadData() {
-	loadJson("data/vn-provinces.json", &provinces)
-	//loadJson("data/vn-wards.json", &wards)
-	loadJson("data/vn-tree.json", &provinceWards)
+	if err := json.Unmarshal(vnProvincesData, &provinces); err != nil {
+		panic(err)
+	}
+
+	if err := json.Unmarshal(vnTreeData, &provinceWards); err != nil {
+		panic(err)
+	}
 }
 
 func init() {
 	loadData()
-}
-
-// LoadJson loads a JSON file from the given path into the target variable.
-func loadJson(path string, target any) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := json.Unmarshal(data, target); err != nil {
-		panic(err)
-	}
 }
 
 // GetProvinces returns a list of all provinces.

@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	vnlocation "github.com/ngocthanh06/vn-location-api"
 	"net/http"
-	vnlocation "vn-location"
 )
 
 func RunServer() {

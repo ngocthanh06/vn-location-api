@@ -1,6 +1,8 @@
 package main
 
-import "vn-location/api"
+import (
+	"github.com/ngocthanh06/vn-location-api/api"
+)
 
 func main() {
 	api.RunServer()
