@@ -13,15 +13,15 @@ func RunServer() {
 		c.JSON(http.StatusOK, vnlocation.GetProvinces())
 	})
 
-	r.GET("/wards/", func(c *gin.Context) {
-		provinceCode := c.Query("province_code")
-
-		if provinceCode == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "province_code is required"})
+	r.GET("/wards", func(c *gin.Context) {
+		provinceCodeStr := c.Query("province_code")
+		wards := vnlocation.GetWardsByProvinceCode(&provinceCodeStr)
+		if wards == nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or missing province_code parameter"})
 			return
 		}
 
-		c.JSON(http.StatusOK, vnlocation.GetWardsByProvinceCode(provinceCode))
+		c.JSON(http.StatusOK, wards)
 	})
 
 	r.Run(":8080")

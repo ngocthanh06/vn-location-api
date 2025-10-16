@@ -3,6 +3,9 @@ package vnlocation
 import (
 	_ "embed"
 	"encoding/json"
+	"log"
+	"strconv"
+	"strings"
 )
 
 type Province struct {
@@ -32,8 +35,12 @@ var vnProvincesData []byte
 //go:embed data/vn-tree.json
 var vnTreeData []byte
 
+//go:embed data/vn-wards.json
+var vnWardsData []byte
+
 var (
 	provinces     []Province
+	wards         []Ward
 	provinceWards []ProvinceWard
 )
 
@@ -43,6 +50,10 @@ func loadData() {
 	}
 
 	if err := json.Unmarshal(vnTreeData, &provinceWards); err != nil {
+		panic(err)
+	}
+
+	if err := json.Unmarshal(vnWardsData, &wards); err != nil {
 		panic(err)
 	}
 }
@@ -57,14 +68,29 @@ func GetProvinces() []Province {
 }
 
 // GetWardsByProvinceCode returns a list of wards for a given province code.
-func GetWardsByProvinceCode(provinceCode string) []Ward {
-	var wards []Ward
+func GetWardsByProvinceCode(provinceCodeStr *string) []Ward {
+	if provinceCodeStr == nil || strings.TrimSpace(*provinceCodeStr) == "" {
+		return wards
+	}
 
+	provinceCode, err := strconv.Atoi(*provinceCodeStr)
+	if err != nil {
+		log.Printf("Invalid province code: %v", err)
+		return nil
+	}
+
+	var result []Ward
 	for _, ward := range provinceWards {
-		if ward.Province.Code == provinceCode {
-			wards = append(wards, ward.Wards...)
+		code, convErr := strconv.Atoi(ward.Province.Code)
+		if convErr != nil {
+			log.Printf("Invalid province code in data: %v", err)
+			continue
+		}
+
+		if code == provinceCode {
+			result = append(result, ward.Wards...)
 		}
 	}
 
-	return wards
+	return result
 }
